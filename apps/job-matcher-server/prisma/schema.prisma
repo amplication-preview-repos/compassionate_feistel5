@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Candidate {
+  comparisons  Comparison[]
+  createdAt    DateTime     @default(now())
+  email        String?
+  id           String       @id @default(cuid())
+  jobProfile   JobProfile?  @relation(fields: [jobProfileId], references: [id])
+  jobProfileId String?
+  name         String?
+  resume       String?
+  updatedAt    DateTime     @updatedAt
+}
+
+model JobProfile {
+  candidates   Candidate[]
+  companies    Company[]    @relation(name: "CompaniesOnJobProfile")
+  company      Company?     @relation(name: "CompanyOnJobProfiles", fields: [companyId], references: [id])
+  companyId    String?
+  comparisons  Comparison[]
+  createdAt    DateTime     @default(now())
+  description  String?
+  id           String       @id @default(cuid())
+  requirements String?
+  title        String?
+  updatedAt    DateTime     @updatedAt
+}
+
+model Comparison {
+  candidate        Candidate?  @relation(fields: [candidateId], references: [id])
+  candidateId      String?
+  comparisonResult Json?
+  createdAt        DateTime    @default(now())
+  id               String      @id @default(cuid())
+  jobProfile       JobProfile? @relation(fields: [jobProfileId], references: [id])
+  jobProfileId     String?
+  updatedAt        DateTime    @updatedAt
+}
+
+model Company {
+  createdAt    DateTime     @default(now())
+  id           String       @id @default(cuid())
+  jobProfile   JobProfile?  @relation(name: "CompaniesOnJobProfile", fields: [jobProfileId], references: [id])
+  jobProfileId String?
+  jobProfiles  JobProfile[] @relation(name: "CompanyOnJobProfiles")
+  location     String?
+  name         String?
+  updatedAt    DateTime     @updatedAt
+}
